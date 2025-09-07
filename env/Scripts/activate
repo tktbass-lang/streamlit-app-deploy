@@ -35,7 +35,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\tktba\program\streamlit-practice\env"
+VIRTUAL_ENV="C:\Users\tktba\program\streamlit-llm-app\env"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
