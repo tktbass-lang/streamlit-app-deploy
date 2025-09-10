@@ -1,13 +1,18 @@
 from dotenv import load_dotenv
-
 load_dotenv()
 import streamlit as st
-from openai import OpenAI
+from langchain_openai import ChatOpenAI
+from langchain.schema import SystemMessage, HumanMessage
 
-# .envファイルからAPIキーを取得する場合
+# .envファイルからAPIキーを取得
 import os
 api_key = os.getenv("OPENAI_API_KEY")
-client = OpenAI(api_key=api_key)
+
+llm = ChatOpenAI(
+    model="gpt-4o-mini",   
+    temperature=0.7,       
+    openai_api_key=api_key
+)
 
 st.title("サンプルアプリ②: LLMでアドバイス")
 
@@ -37,22 +42,17 @@ if st.button("実行"):
     if input_message.strip() == "":
         st.warning("相談内容を入力してください。")
     else:
-        # プロンプトの組み立て
         if selected_item == "食事のアドバイス":
-            system_prompt = "あなたは食事に関するアドバイザーです。食事の質問以外の場合は分かりませんと回答してください"
+            system_prompt = "あなたは食事に関するアドバイザーです。食事の質問以外の場合は分かりませんと回答してください。"
         else:
-            system_prompt = "あなたは仕事やキャリア、職場での人間関係に関するアドバイザーです。仕事の質問以外の場合は分かりませんと回答してください"
+            system_prompt = "あなたは仕事やキャリア、職場での人間関係に関するアドバイザーです。仕事の質問以外の場合は分かりませんと回答してください。"
 
-        # LLM呼び出し（新API形式）
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",  # モデルは用途に応じて変更可
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": input_message}
-            ],
-            max_tokens=500
-        )
+        with st.spinner("アドバイスを生成中..."):
+            response = llm.invoke([
+                SystemMessage(content=system_prompt),
+                HumanMessage(content=input_message)
+            ])
 
         # 結果を表示
         st.write("### アドバイス")
-        st.write(response.choices[0].message.content)
+        st.write(response.content)
